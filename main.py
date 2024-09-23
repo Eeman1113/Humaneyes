@@ -29,14 +29,23 @@ def get_synonyms(word, pos='noun'):
 def introduce_human_errors(text):
     words = text.split()
     for i in range(len(words)):
-        if random.random() < 0.05:  # 5% chance of introducing an error
+        if random.random() < 0.03:  # 3% chance of introducing an error
             error_type = random.choice(['double_space', 'typo'])
             if error_type == 'double_space':
-                words[i] = "  " + words[i]  # Introduce a double space
+                words[i] = " " + words[i]  # Introduce a single extra space
             elif error_type == 'typo' and len(words[i]) > 3:
                 pos = random.randint(1, len(words[i]) - 2)
                 words[i] = words[i][:pos] + words[i][pos] + words[i][pos:]  # Duplicate a letter
     return ' '.join(words)
+
+def fix_punctuation_spacing(text):
+    # Remove space before punctuation
+    text = re.sub(r'\s+([.,!?:;])', r'\1', text)
+    # Ensure single space after punctuation
+    text = re.sub(r'([.,!?:;])\s*', r'\1 ', text)
+    # Remove extra spaces
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
 
 def paraphrase_sentence(sentence):
     quote_pattern = r'(".*?")'
@@ -85,6 +94,7 @@ def paraphrase_text(input_text):
         paraphrased_sentences = [paraphrase_sentence(sentence) for sentence in sentences]
         paraphrased_paragraph = ' '.join(paraphrased_sentences)
         paraphrased_paragraph = introduce_human_errors(paraphrased_paragraph)
+        paraphrased_paragraph = fix_punctuation_spacing(paraphrased_paragraph)
         paraphrased_paragraphs.append(paraphrased_paragraph)
 
     return '\n\n'.join(paraphrased_paragraphs)
